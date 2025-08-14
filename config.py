@@ -12,9 +12,39 @@ CHUNK_OVERLAP = 500
 
 
 def load_env() -> None:
-    """Load environment variables from .env and export any required tokens.
+    """Load environment variables from .env/Streamlit secrets and export tokens.
 
-    This ensures dependencies like Hugging Face can read tokens from env.
+    Ensures dependencies (e.g., Hugging Face) can read tokens from env.
+    Looks for HF tokens in this order: Streamlit secrets -> OS env -> .env
+    and sets common env names used by different libraries.
     """
+    # Load from .env first (lowest priority when Streamlit secrets are present)
     load_dotenv()
-    os.environ["HF_TOKEN"] = os.getenv("HF_TOKEN", "")
+
+    # Start with any existing env values
+    token = (
+        os.getenv("HF_TOKEN")
+        or os.getenv("HUGGINGFACEHUB_API_TOKEN")
+        or os.getenv("HUGGINGFACE_HUB_TOKEN")
+    )
+
+    # Prefer Streamlit secrets if available
+    try:
+        import streamlit as st  # type: ignore
+
+        secrets = getattr(st, "secrets", None)
+        if secrets:
+            token = (
+                secrets.get("HF_TOKEN", token)
+                or secrets.get("HUGGINGFACEHUB_API_TOKEN", token)
+                or secrets.get("HUGGINGFACE_HUB_TOKEN", token)
+            )
+    except (ImportError, AttributeError):
+        # Streamlit not available or secrets not configured; ignore
+        pass
+
+    # Normalize across common env var names
+    if token:
+        os.environ["HF_TOKEN"] = token
+        os.environ["HUGGINGFACEHUB_API_TOKEN"] = token
+        os.environ["HUGGINGFACE_HUB_TOKEN"] = token
