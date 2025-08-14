@@ -38,7 +38,14 @@ def load_env() -> None:
                 secrets.get("HF_TOKEN", token)
                 or secrets.get("HUGGINGFACEHUB_API_TOKEN", token)
                 or secrets.get("HUGGINGFACE_HUB_TOKEN", token)
-            )
+            # Use explicit None checks for secrets fallback
+            if secrets.get("HF_TOKEN", None) is not None:
+                token = secrets.get("HF_TOKEN")
+            elif secrets.get("HUGGINGFACEHUB_API_TOKEN", None) is not None:
+                token = secrets.get("HUGGINGFACEHUB_API_TOKEN")
+            elif secrets.get("HUGGINGFACE_HUB_TOKEN", None) is not None:
+                token = secrets.get("HUGGINGFACE_HUB_TOKEN")
+            # else, keep previous token value
     except (ImportError, AttributeError):
         # Streamlit not available or secrets not configured; ignore
         pass
