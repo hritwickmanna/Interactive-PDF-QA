@@ -1,5 +1,8 @@
 # RAG Q&A with PDFs (Streamlit + LangChain)
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://interactive-pdf.streamlit.app/)
+Live app: https://interactive-pdf.streamlit.app/
+
 Conversational question answering over your PDFs using a Retrieval-Augmented Generation (RAG) pipeline. The app supports chat history so follow-up questions are contextualized properly.
 
 
@@ -113,3 +116,24 @@ Edit `config.py` to change defaults:
 - Swap models or parameters in `config.py`.
 - Add new UI elements in `ui.py`.
 - Implement persistence or advanced retrieval strategies in `rag.py`.
+
+
+---
+
+## Issues faced and how we addressed them
+
+- Issues faced:
+  - Inconsistent Hugging Face token handling between local and Streamlit Cloud.
+  - Chroma/SQLite errors on Streamlit Cloud during vector store initialization.
+  - Slow first question on large PDFs due to heavy indexing/embedding.
+  - Streamlit reruns dropping state (e.g., “No PDF uploaded” after asking a question).
+
+- Fixes applied in this repo:
+  - Normalized secrets loading in `config.py`: reads Streamlit Secrets first, then env/.env; aligns `HF_TOKEN`, `HUGGINGFACEHUB_API_TOKEN`, `HUGGINGFACE_HUB_TOKEN` for library compatibility.
+  - Replaced Chroma with FAISS-only vector store in the implementation to avoid SQLite on Cloud; removed Chroma/SQLite deps from `requirements.txt` used by the app.
+  - Cached embeddings and LLM; persisted the built RAG chain in `st.session_state` and rebuild only when uploads change to prevent rerun issues.
+  - Tuned defaults for speed/consistency: `CHUNK_OVERLAP=100`, `RETRIEVAL_K=3`, `LLM_MAX_TOKENS=512`, `LLM_TEMPERATURE=0.2`.
+
+Notes:
+- If you prefer the original Chroma behavior locally, you can keep it; for Streamlit Cloud or portability, use FAISS as implemented.
+- The README above reflects the original design; the fixes listed here describe how we made it reliable on both local and Cloud.
