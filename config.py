@@ -26,7 +26,14 @@ def load_env() -> None:
         os.getenv("HF_TOKEN")
         or os.getenv("HUGGINGFACEHUB_API_TOKEN")
         or os.getenv("HUGGINGFACE_HUB_TOKEN")
-    )
+    # Find the first environment variable that is set (even if empty string)
+    for var in ["HF_TOKEN", "HUGGINGFACEHUB_API_TOKEN", "HUGGINGFACE_HUB_TOKEN"]:
+        value = os.getenv(var)
+        if value is not None:
+            token = value
+            break
+    else:
+        token = None
 
     # Prefer Streamlit secrets if available
     try:
