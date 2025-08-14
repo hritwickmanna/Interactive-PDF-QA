@@ -37,9 +37,7 @@ def load_env() -> None:
             token = (
                 secrets.get("HF_TOKEN", token)
                 or secrets.get("HUGGINGFACEHUB_API_TOKEN", token)
-                secrets.get("HF_TOKEN") or token
-                or secrets.get("HUGGINGFACEHUB_API_TOKEN") or token
-                or secrets.get("HUGGINGFACE_HUB_TOKEN") or token
+                or secrets.get("HUGGINGFACE_HUB_TOKEN", token)
             )
     except (ImportError, AttributeError):
         # Streamlit not available or secrets not configured; ignore
