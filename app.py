@@ -1,4 +1,4 @@
-## RAG Q&A conversation with PDF Including Chat History (Modularized)
+## RAG Q&A conversation with PDF Including Chat History.
 # Entry point for the Streamlit app. Orchestrates the flow using modular helpers.
 
 from typing import List
