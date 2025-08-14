@@ -1,17 +1,40 @@
 """Builders for RAG components: retriever, prompts, chains."""
+# Ensure modern SQLite for Chroma on platforms with old sqlite3 (e.g., Streamlit Cloud)
+try:
+    import pysqlite3  # type: ignore
+    import sys
+    sys.modules["sqlite3"] = pysqlite3
+except ImportError:
+    # pysqlite3-binary not installed; Chroma may raise later
+    pass
+
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 
+# Prefer Chroma, but fall back to FAISS if Chroma cannot import (e.g., sqlite too old)
+HAVE_CHROMA = True
+try:
+    from langchain_chroma import Chroma
+except Exception:
+    HAVE_CHROMA = False
+    from langchain_community.vectorstores import FAISS
+
 
 def build_retriever(splits, embeddings: HuggingFaceEmbeddings):
-    """Build a vector store retriever from document splits and embeddings."""
-    vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings)
-    return vectorstore.as_retriever()
+    """Build a vector store retriever from document splits and embeddings.
+
+    Uses Chroma if available; otherwise falls back to FAISS to avoid sqlite issues.
+    """
+    if HAVE_CHROMA:
+        vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings)
+        return vectorstore.as_retriever()
+    else:
+        vectorstore = FAISS.from_documents(documents=splits, embedding=embeddings)
+        return vectorstore.as_retriever()
 
 
 def build_contextualize_prompt() -> ChatPromptTemplate:
