@@ -16,7 +16,7 @@ Conversational question answering over your PDFs using a Retrieval-Augmented Gen
 - Caching of LLM and Embeddings for performance
 
 
-## 🎯 Tech Stack
+## 🧠 Tech Stack
 - Streamlit for UI
 - LangChain for retrieval and chaining
 - Chroma as in-memory vector store
@@ -38,7 +38,7 @@ Conversational question answering over your PDFs using a Retrieval-Augmented Gen
 ```
 
 
-## 🧠 Prerequisites
+## 🎯 Prerequisites
 - Python 3.10+
 - A Groq API Key (required)
 - Optional: HF_TOKEN if you use gated/private HF models
