@@ -1,6 +1,6 @@
 #  📚 RAG Q&A with PDFs (Streamlit + LangChain)
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://interactive-pdf-hritwick.streamlit.app/)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://interactive-pdf.streamlit.app/)
 Live app: https://interactive-pdf.streamlit.app/
 
 ---
