@@ -105,7 +105,7 @@ streamlit run app.py
 Edit `config.py` to change defaults:
 - `MODEL_NAME` (Groq model)
 - `EMBEDDING_MODEL` (HuggingFace)
-- `CHUNK_SIZE`, `CHUNK_OVERLAP` (document splitting)
+- `CHUNK_SIZE`, `CHUNK_OVERLAP` (document splitting) 
 
 
 ## Notes & Troubleshooting
