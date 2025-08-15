@@ -53,22 +53,36 @@ def main():
 
     # Ingest PDFs
     uploaded_files = render_file_uploader()
-    if not uploaded_files:
-        # Don't proceed until files are provided
+
+    # If nothing uploaded and no cached chain, stop early
+    if not uploaded_files and "conversational_rag_chain" not in st.session_state:
         return
 
-    with st.spinner("Processing documents..."):
-        pdf_paths = save_uploaded_pdfs(uploaded_files)
-        documents = load_documents_from_pdfs(pdf_paths)
-        splits = split_documents(documents)
+    # If files uploaded, rebuild only when they change
+    if uploaded_files:
+        sig = "|".join(
+            f"{f.name}:{getattr(f, 'size', None) or len(f.getvalue())}" for f in uploaded_files
+        )
+        if st.session_state.get("index_sig") != sig:
+            with st.spinner("Processing documents..."):
+                pdf_paths = save_uploaded_pdfs(uploaded_files)
+                documents = load_documents_from_pdfs(pdf_paths)
+                splits = split_documents(documents)
 
-        # Build retriever and RAG pipeline
-        retriever = build_retriever(splits, embeddings)
-        contextualize_prompt = build_contextualize_prompt()
-        history_aware_retriever = build_history_aware_retriever(llm, retriever, contextualize_prompt)
-        qa_prompt = build_qa_prompt()
-        rag_chain = build_rag_chain(llm, history_aware_retriever, qa_prompt)
-        conversational_rag_chain = build_conversational_chain(rag_chain)
+                # Build retriever and RAG pipeline
+                retriever = build_retriever(splits, embeddings)
+                contextualize_prompt = build_contextualize_prompt()
+                history_aware_retriever = build_history_aware_retriever(llm, retriever, contextualize_prompt)
+                qa_prompt = build_qa_prompt()
+                rag_chain = build_rag_chain(llm, history_aware_retriever, qa_prompt)
+                st.session_state["conversational_rag_chain"] = build_conversational_chain(rag_chain)
+                st.session_state["index_sig"] = sig
+                st.success("Document index is ready.")
+
+    conversational_rag_chain = st.session_state.get("conversational_rag_chain")
+    if not conversational_rag_chain:
+        st.info("Upload a PDF to start.")
+        return
 
     # Ask question and display answer
     user_input = render_question_input()
@@ -76,11 +90,7 @@ def main():
         session_history = get_session_history(session_id)
         response = conversational_rag_chain.invoke(
             {"input": user_input},
-            config={
-                "configurable": {
-                    "session_id": session_id,
-                }
-            },
+            config={"configurable": {"session_id": session_id}},
         )
         # Optional: Inspect the raw store for debugging
         st.write(st.session_state.store)

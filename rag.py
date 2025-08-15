@@ -1,40 +1,21 @@
 """Builders for RAG components: retriever, prompts, chains."""
-# Ensure modern SQLite for Chroma on platforms with old sqlite3 (e.g., Streamlit Cloud)
-try:
-    import pysqlite3  # type: ignore
-    import sys
-    sys.modules["sqlite3"] = pysqlite3
-except ImportError:
-    # pysqlite3-binary not installed; Chroma may raise later
-    pass
-
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
-
-# Prefer Chroma, but fall back to FAISS if Chroma cannot import (e.g., sqlite too old)
-HAVE_CHROMA = True
-try:
-    from langchain_chroma import Chroma
-except Exception:
-    HAVE_CHROMA = False
-    from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
+from config import RETRIEVAL_K
 
 
 def build_retriever(splits, embeddings: HuggingFaceEmbeddings):
     """Build a vector store retriever from document splits and embeddings.
 
-    Uses Chroma if available; otherwise falls back to FAISS to avoid sqlite issues.
+    Uses FAISS (fast, CPU-friendly, no sqlite dependency).
     """
-    if HAVE_CHROMA:
-        vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings)
-        return vectorstore.as_retriever()
-    else:
-        vectorstore = FAISS.from_documents(documents=splits, embedding=embeddings)
-        return vectorstore.as_retriever()
+    vectorstore = FAISS.from_documents(documents=splits, embedding=embeddings)
+    return vectorstore.as_retriever(search_kwargs={"k": RETRIEVAL_K})
 
 
 def build_contextualize_prompt() -> ChatPromptTemplate:
@@ -80,5 +61,9 @@ def build_history_aware_retriever(llm: ChatGroq, retriever, contextualize_prompt
 
 def build_rag_chain(llm: ChatGroq, history_aware_retriever, qa_prompt: ChatPromptTemplate):
     """Create the end-to-end RAG chain (retrieval + question answering)."""
-    question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
+    question_answer_chain = create_stuff_documents_chain(
+        llm,
+        qa_prompt,
+        document_variable_name="context",
+    )
     return create_retrieval_chain(history_aware_retriever, question_answer_chain)

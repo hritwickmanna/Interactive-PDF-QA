@@ -8,7 +8,13 @@ from dotenv import load_dotenv
 MODEL_NAME = "gemma2-9b-it"
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 CHUNK_SIZE = 5000
-CHUNK_OVERLAP = 500
+# Lower overlap to reduce total text processed during embedding
+CHUNK_OVERLAP = 100
+# Retrieval: number of chunks to fetch per query (smaller is faster)
+RETRIEVAL_K = 3
+# LLM generation limits (smaller responses are faster/cheaper)
+LLM_MAX_TOKENS = 512
+LLM_TEMPERATURE = 0.2
 
 
 def load_env() -> None:
