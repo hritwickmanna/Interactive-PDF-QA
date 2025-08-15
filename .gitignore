@@ -1,0 +1,8 @@
+# Ignore local env and secrets
+.env
+.streamlit/secrets.toml
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env.*

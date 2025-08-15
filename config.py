@@ -8,13 +8,49 @@ from dotenv import load_dotenv
 MODEL_NAME = "gemma2-9b-it"
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 CHUNK_SIZE = 5000
-CHUNK_OVERLAP = 500
+# Lower overlap to reduce total text processed during embedding
+CHUNK_OVERLAP = 100
+# Retrieval: number of chunks to fetch per query (smaller is faster)
+RETRIEVAL_K = 3
+# LLM generation limits (smaller responses are faster/cheaper)
+LLM_MAX_TOKENS = 512
+LLM_TEMPERATURE = 0.2
 
 
 def load_env() -> None:
-    """Load environment variables from .env and export any required tokens.
+    """Load environment variables from .env/Streamlit secrets and export tokens.
 
-    This ensures dependencies like Hugging Face can read tokens from env.
+    Ensures dependencies (e.g., Hugging Face) can read tokens from env.
+    Looks for HF tokens in this order: Streamlit secrets -> OS env -> .env
+    and sets common env names used by different libraries.
     """
+    # Load from .env first
     load_dotenv()
-    os.environ["HF_TOKEN"] = os.getenv("HF_TOKEN", "")
+
+    # Read from OS env first (may be set by deployment platform)
+    token = (
+        os.getenv("HF_TOKEN")
+        or os.getenv("HUGGINGFACEHUB_API_TOKEN")
+        or os.getenv("HUGGINGFACE_HUB_TOKEN")
+    )
+
+    # Prefer Streamlit secrets if available
+    try:
+        import streamlit as st  # type: ignore
+
+        secrets = getattr(st, "secrets", None)
+        if secrets:
+            token = (
+                secrets.get("HF_TOKEN", token)
+                or secrets.get("HUGGINGFACEHUB_API_TOKEN", token)
+                or secrets.get("HUGGINGFACE_HUB_TOKEN", token)
+            )
+    except (ImportError, AttributeError):
+        # Streamlit not available or secrets not configured; ignore
+        pass
+
+    # Normalize across common env var names
+    if token:
+        os.environ["HF_TOKEN"] = token
+        os.environ["HUGGINGFACEHUB_API_TOKEN"] = token
+        os.environ["HUGGINGFACE_HUB_TOKEN"] = token

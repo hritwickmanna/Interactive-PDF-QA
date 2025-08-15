@@ -2,16 +2,20 @@
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+from config import RETRIEVAL_K
 
 
 def build_retriever(splits, embeddings: HuggingFaceEmbeddings):
-    """Build a vector store retriever from document splits and embeddings."""
-    vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings)
-    return vectorstore.as_retriever()
+    """Build a vector store retriever from document splits and embeddings.
+
+    Uses FAISS (fast, CPU-friendly, no sqlite dependency).
+    """
+    vectorstore = FAISS.from_documents(documents=splits, embedding=embeddings)
+    return vectorstore.as_retriever(search_kwargs={"k": RETRIEVAL_K})
 
 
 def build_contextualize_prompt() -> ChatPromptTemplate:
@@ -57,5 +61,8 @@ def build_history_aware_retriever(llm: ChatGroq, retriever, contextualize_prompt
 
 def build_rag_chain(llm: ChatGroq, history_aware_retriever, qa_prompt: ChatPromptTemplate):
     """Create the end-to-end RAG chain (retrieval + question answering)."""
-    question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
+    question_answer_chain = create_stuff_documents_chain(
+        llm,
+        qa_prompt,
+    )
     return create_retrieval_chain(history_aware_retriever, question_answer_chain)
