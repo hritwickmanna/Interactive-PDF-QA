@@ -64,6 +64,5 @@ def build_rag_chain(llm: ChatGroq, history_aware_retriever, qa_prompt: ChatPromp
     question_answer_chain = create_stuff_documents_chain(
         llm,
         qa_prompt,
-        document_variable_name="context",
     )
     return create_retrieval_chain(history_aware_retriever, question_answer_chain)
