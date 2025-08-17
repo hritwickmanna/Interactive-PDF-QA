@@ -10,3 +10,6 @@ huggingface-hub
 groq
 faiss-cpu
 pypdf
+arxiv
+wikipedia
+duckduckgo-search
