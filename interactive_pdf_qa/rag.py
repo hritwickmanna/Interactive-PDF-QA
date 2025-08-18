@@ -6,7 +6,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from config import RETRIEVAL_K
+from .config import RETRIEVAL_K
 
 
 def build_retriever(splits, embeddings: HuggingFaceEmbeddings):

@@ -4,19 +4,19 @@
 import streamlit as st
 from contextlib import suppress
 
-# Local modules
-from config import load_env
-from resources import get_embeddings, get_llm
-from pdf_utils import save_uploaded_pdfs, load_documents_from_pdfs, split_documents
-from rag import (
+# Local modules now under the package
+from interactive_pdf_qa.config import load_env
+from interactive_pdf_qa.resources import get_embeddings, get_llm
+from interactive_pdf_qa.pdf_utils import save_uploaded_pdfs, load_documents_from_pdfs, split_documents
+from interactive_pdf_qa.rag import (
     build_retriever,
     build_contextualize_prompt,
     build_qa_prompt,
     build_history_aware_retriever,
     build_rag_chain,
 )
-from history import ensure_store, get_session_history, build_conversational_chain
-from ui import (
+from interactive_pdf_qa.history import ensure_store, get_session_history, build_conversational_chain
+from interactive_pdf_qa.ui import (
     render_header,
     render_api_key_input,
     render_session_input,
@@ -26,8 +26,8 @@ from ui import (
 )
 
 # New modular helpers
-from agents import build_web_agent, compute_index_sig, compute_agent_sig
-from synthesis import synthesize_combined_answer
+from interactive_pdf_qa.agents import build_web_agent, compute_index_sig, compute_agent_sig
+from interactive_pdf_qa.synthesis import synthesize_combined_answer
 
 # Keep Streamlit callback handler for agent thoughts display
 from langchain.callbacks import StreamlitCallbackHandler

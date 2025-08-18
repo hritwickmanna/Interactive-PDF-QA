@@ -14,7 +14,7 @@ from langchain_community.tools import (
 from langchain.agents import initialize_agent, AgentType
 from langchain.tools import Tool
 
-from history import get_session_history
+from .history import get_session_history
 
 
 def compute_index_sig(uploaded_files: List) -> str:

@@ -6,7 +6,7 @@ import streamlit as st
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
 
-from config import CHUNK_SIZE, CHUNK_OVERLAP
+from .config import CHUNK_SIZE, CHUNK_OVERLAP
 
 
 def save_uploaded_pdfs(uploaded_files: List[st.runtime.uploaded_file_manager.UploadedFile]) -> List[str]:
