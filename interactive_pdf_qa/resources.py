@@ -3,7 +3,7 @@ import streamlit as st
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 
-from config import MODEL_NAME, EMBEDDING_MODEL, LLM_MAX_TOKENS, LLM_TEMPERATURE
+from .config import MODEL_NAME, EMBEDDING_MODEL, LLM_MAX_TOKENS, LLM_TEMPERATURE
 
 
 @st.cache_resource(show_spinner=False)

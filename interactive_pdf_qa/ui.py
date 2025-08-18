@@ -21,3 +21,8 @@ def render_file_uploader():
 
 def render_question_input() -> str:
     return st.text_input("Ask a question:")
+
+
+def render_agent_toggle() -> bool:
+    """Whether to enable external web tools (Wikipedia/Arxiv/Search) via an agent."""
+    return st.checkbox("Enable web tools (Wikipedia, Arxiv, Web search)")

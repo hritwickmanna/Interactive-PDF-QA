@@ -10,11 +10,41 @@ Conversational question answering over your PDFs using a Retrieval-Augmented Gen
 
 
 ## ⚡ Features
-- Upload one or more PDF files and query them
-- History-aware retrieval (follow-up questions work)
-- Modular codebase for easy extension
-- Caching of LLM and Embeddings for performance
+### Core (Original Implementation)
+- 📄 Upload one or more PDF files and query them
+- 🧠 History-aware retrieval (follow-up questions work)
+- 🗂 Modular codebase for easy extension
+- ⚡ Caching of LLM and Embeddings for performance
 
+## 🚀 New Enhancements (Evolution)
+We’ve now extended the project beyond basic PDF Q&A:
+
+- 🔌 Agent Mode (toggle in UI) → lets you query external tools alongside your PDFs:
+  - Wikipedia
+  - Arxiv
+  - DuckDuckGo search
+  - Custom PDF QA tool (wraps our RAG chain)
+
+- 🧩 Answer synthesis → responses are intelligently merged:
+    - Always prioritize PDF facts.
+    - Add web context only if relevant.
+
+- 💾 Dual RAG chains:
+  - Stateless RAG for agent tool calls.
+  - Stateful conversational RAG with memory.
+
+- 🔄 Efficient rebuilding:
+  - Detects changes in PDFs (`index_sig`).
+  - Detects when agent tools need rebuilding (`agent_sig`).
+
+- 🎛 Better UI/UX:
+  - Agent toggle in sidebar.
+  - Spinners while indexing or thinking.
+  - Optional debugging (show reasoning steps).
+ 
+- 🛠️ Improved robustness:
+  - Error suppression for agent parsing quirks.
+  - Resilient state handling across Streamlit reruns.
 
 ## 🧠 Tech Stack
 - Streamlit for UI
@@ -143,6 +173,17 @@ Notes:
 - The README above reflects the original design; the fixes listed here describe how we made it reliable on both local and Cloud.
 
 ---
+
+## 🌱 Evolution Path
+
+- ✅ Phase 1 → Basic PDF-only conversational RAG (this repo’s original design).
+- ✅ Phase 2 → Integrated agent + external tools, hybrid answers, stronger caching & UI (current state).
+- 🔜 Future (possible next steps):
+  - Persistent vector store (FAISS/Chroma with storage).
+  - More external connectors (Slack, Notion, Google Drive).
+  - Fine-grained tool choice based on query type.
+
+---   
 
 ## 📜 License
 
